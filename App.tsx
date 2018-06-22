@@ -23,7 +23,6 @@ type States = {
 }
 export default class App extends Component<Props, States> {
   converting: boolean = false;
-  setState: any;
 
   state: any = {
     width: Dimensions.get('window').width,
@@ -40,6 +39,12 @@ export default class App extends Component<Props, States> {
         width: width > this.state.width ? this.state.width : width,
       });
     }, () => {});
+
+    imageService.init((imageBase64) => {
+      this.setState({
+        imageBase64,
+      });
+    })
   }
 
   _onPress = () => {

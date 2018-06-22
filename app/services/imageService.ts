@@ -1,8 +1,17 @@
-import { NativeModules } from 'react-native';
+import { 
+  NativeModules, 
+  DeviceEventEmitter,
+} from 'react-native';
 
 const COLOR_DISTANCE_THREHOLD: number = 32;
 
 const ImageConverter = NativeModules.ImageConverter;
+
+const init = (eventCallback: any) => {
+  DeviceEventEmitter.addListener('onImageConvert', (e: any): void => {
+    if (eventCallback) eventCallback(e.image);
+  });
+}
 
 const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
@@ -13,4 +22,7 @@ const convertImage = (imageURI: string): Promise<string> => new Promise((resolve
   });
 });
 
-export default { convertImage };
+export default { 
+  init, 
+  convertImage 
+};

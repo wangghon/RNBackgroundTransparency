@@ -10,6 +10,9 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,10 +32,17 @@ public class ImageConverter extends ReactContextBaseJavaModule {
         return "ImageConverter";
     }
 
+
+    private void sendEvent(String eventName, WritableMap params) {
+        mContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
+    }
+
     @ReactMethod
     public void convertImage(String imageURI, final Integer threshold, final Promise promise) {
 
-         class ImageAsyncTask extends AsyncTask<String, Void, String> {
+         class ImageAsyncTask extends AsyncTask<String, String, String> {
             @Override
             protected String doInBackground(String... URL) {
 
@@ -44,8 +54,6 @@ public class ImageConverter extends ReactContextBaseJavaModule {
 
                     //Decode bitmap
                     Bitmap bitmap = BitmapFactory.decodeStream(input);
-
-                    //
                     bitmap = TransparencyBitmapBG(bitmap, threshold);
 
                     //convert to base64 string
@@ -56,6 +64,15 @@ public class ImageConverter extends ReactContextBaseJavaModule {
                 }
                 return imageBase64;
             }
+
+             @Override
+             protected void onProgressUpdate(String... progress) {
+
+                 WritableMap params = Arguments.createMap();;
+                 params.putString("image", progress[0]);
+
+                 sendEvent("onImageConvert", params);
+             }
 
             @Override
             protected void onPostExecute(String result)
@@ -80,13 +97,19 @@ public class ImageConverter extends ReactContextBaseJavaModule {
 
                 int white = 0xffffffff;
 
-                for(int x=0;x< 1024 /*decoded.getWidth()*/;x++){
-                    for(int y=0;y< 768 /*decoded.getHeight()*/;y++){
+                for(int x = 0; x < decoded.getWidth(); x++) {
 
-                        if(ColorDistance(decoded.getPixel(x, y), white) < threshold)
-                        {
+                    for(int y = 0; y < decoded.getHeight(); y++) {
+
+                        if(ColorDistance(decoded.getPixel(x, y), white) < threshold) {
                             decoded.setPixel(x, y,Color.TRANSPARENT);
                         }
+                    }
+
+                    if ( x % 100 == 0 ) {
+
+                        String temp = BitMapToString(decoded);
+                        publishProgress(temp);
                     }
                 }
                 return decoded;
