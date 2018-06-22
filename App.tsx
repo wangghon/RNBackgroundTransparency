@@ -40,7 +40,7 @@ export default class App extends Component<Props, States> {
       });
     }, () => {});
 
-    imageService.init((imageBase64) => {
+    imageService.init((imageBase64: string) => {
       this.setState({
         imageBase64,
       });
@@ -72,9 +72,9 @@ export default class App extends Component<Props, States> {
           style={styles.button}
           onPress={this._onPress}
        >
-         <Text style={styles.text}> Convert </Text>
+         <Text style={styles.text}> {this.state.converting ? 'Converting' : 'Convert'}</Text>
+         {this.state.converting && <ActivityIndicator size="large" color={'#D9155D'} style={styles.indicator} /> }
        </TouchableOpacity>
-       {this.state.converting && <ActivityIndicator size="large" color={'#D9155D'} /> }
       <Image
         source={{uri: `data:image/png;base64, ${this.state.imageBase64}`}}
         style={{width: this.state.width, height: this.state.height}}
@@ -98,8 +98,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   text: {
     fontSize: 20,
+  },
+  indicator: {
+    marginLeft: 5,
   }
 });
