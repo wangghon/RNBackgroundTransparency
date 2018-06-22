@@ -1,12 +1,14 @@
 import { NativeModules } from 'react-native';
 
+const COLOR_DISTANCE_THREHOLD: number = 32;
+
 const ImageConverter = NativeModules.ImageConverter;
 
-const convertImage = (imageURI: string): any => new Promise((resolve, reject) => {
+const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
-  ImageConverter.convertImage(imageURI)
+  ImageConverter.convertImage(imageURI, COLOR_DISTANCE_THREHOLD)
   .then((imageBase64: string) => { resolve(imageBase64) })
-  .catch(e => {
+  .catch((e: any) => {
     reject(e)
   });
 });
