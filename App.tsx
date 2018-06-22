@@ -6,17 +6,32 @@ import {
   View,
   Image,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+
+import imageService from './app/services/imageService';
 
 const imageURI: string = 'https://images.pexels.com/photos/768943/pexels-photo-768943.jpeg';
 
 type Props = {};
-export default class App extends Component<Props> {
+type States = {
+  width: number,
+  height: number,
+  imageBase64: string,
+  converting: boolean,
+}
+export default class App extends Component<Props, States> {
+  converting: boolean = false;
+  setState: any;
+
   state: any = {
     width: Dimensions.get('window').width,
     height:Dimensions.get('window').height * 0.4,
+    imagebase64: '',
+    converting: false,
   }
+
   componentWillMount() {
     Image.prefetch(imageURI);
     Image.getSize(imageURI, (width: number, height: number) => {
@@ -28,7 +43,17 @@ export default class App extends Component<Props> {
   }
 
   _onPress = () => {
-
+    if (this.converting) return;
+    this.converting = true;
+    this.setState({ converting: true });
+    imageService.convertImage(imageURI).then((imageBase64: string) => {
+      this.setState({
+        imageBase64,
+        converting: false,
+      });
+    }).catch((e: any) => {
+      console.log('The error of image converter is ', e);
+    })
   };
 
   render() {
@@ -44,6 +69,11 @@ export default class App extends Component<Props> {
        >
          <Text style={styles.text}> Convert </Text>
        </TouchableOpacity>
+       {this.state.converting && <ActivityIndicator size="large" color={'#D9155D'} /> }
+      <Image
+        source={{uri: `data:image/png;base64, ${this.state.imageBase64}`}}
+        style={{width: this.state.width, height: this.state.height}}
+      />
       </View>
     );
   }
