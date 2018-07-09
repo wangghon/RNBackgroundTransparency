@@ -5,6 +5,8 @@ import {
 
 const COLOR_DISTANCE_THREHOLD: number = 32;
 
+console.log(NativeModules.Counter);
+
 const ImageConverter = NativeModules.ImageConverter;
 
 const init = (eventCallback: any) => {

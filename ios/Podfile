@@ -1,0 +1,29 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.0'
+
+install! 'cocoapods', :deterministic_uuids => false
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'RNBackgroundTransparency' do
+  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for RNBackgroundTransparency
+
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  pod 'React', path: '../node_modules/react-native', :subspecs => [
+     'Core',
+     'DevSupport',
+     'RCTNetwork'
+  ]
+
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      if target.name == "React"
+        target.remove_from_project
+      end
+    end
+  end
+
+end
+

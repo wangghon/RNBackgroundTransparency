@@ -5,7 +5,11 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "android": "react-native run-android"
+    "build:clean": "rm -Rf ios/Pods ios/Podfile.lock android/.idea android/.gradle ios/build android/build android/app/build && pod install --project-directory=./ios/",
+    "dev:refresh": "rm -Rf node_modules/ && yarn && yarn build:clean",
+    "dev:reset": "rm -Rf $TMPDIR/react-* && watchman watch-del-all && yarn dev:refresh && yarn start --reset-cache",
+    "android": "react-native run-android",
+    "xc": "open ./ios/*.xcworkspace"
   },
   "dependencies": {
     "react": "16.3.1",
