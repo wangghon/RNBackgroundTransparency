@@ -6,15 +6,14 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Base64;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.Arguments;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
@@ -101,16 +100,17 @@ public class ImageConverter extends ReactContextBaseJavaModule {
 
                     for(int y = 0; y < decoded.getHeight(); y++) {
 
-                        if(ColorDistance(decoded.getPixel(x, y), white) < threshold) {
+                        //if(ColorDistance(decoded.getPixel(x, y), white) < threshold) {
+                        if (ShouldBeTransparent(decoded.getPixel(x, y))) {
                             decoded.setPixel(x, y,Color.TRANSPARENT);
                         }
                     }
 
-                    if ( x % 100 == 0 ) {
-
-                        String temp = BitMapToString(decoded);
-                        publishProgress(temp);
-                    }
+//                    if ( x % 100 == 0 ) {
+//
+//                        String temp = BitMapToString(decoded);
+//                        publishProgress(temp);
+//                    }
                 }
                 return decoded;
             }
@@ -118,6 +118,18 @@ public class ImageConverter extends ReactContextBaseJavaModule {
             private double ColorDistance(int c1, int c2) {
                 return Math.sqrt(Math.pow(Color.red(c1) - Color.red(c2), 2) + Math.pow(Color.green(c1) - Color.green(c2), 2) + Math.pow(Color.blue(c1) - Color.blue(c2), 2)); // + Math.pow(c1.alpha - c2.alpha, 2));
             }
+
+            private boolean ShouldBeTransparent(int c1) {
+                int[] color = {240, 255};
+                return Color.red(c1) > color[0]
+                        && Color.red(c1) <= color[1]
+                        && Color.green(c1) > color[0]
+                        && Color.green(c1) <= color[1]
+                        && Color.blue(c1) > color[0]
+                        && Color.blue(c1) <= color[1];
+            }
+
+
          }
         try {
             new ImageAsyncTask().execute(imageURI);
