@@ -43,18 +43,24 @@ class ImageConverter: NSObject {
   }
   
   func transparencyImageBG(_ image: UIImage, threshold: Int) -> UIImage? {
-    let rawImage: CGImage = image.cgImage!
+      let colorMasking: [CGFloat] = [240, 255, 240, 255, 240, 255]
+      let sz = image.size
     
-    var resImage: UIImage?
-    
-    let colorMasking: [CGFloat] = [240, 255, 240, 255, 240, 255]
-
-    if let imgRefCopy = rawImage.copy(maskingColorComponents: colorMasking) {
-      
-      resImage = UIImage(cgImage: imgRefCopy)
+      if let rawImageRef = image.cgImage {
+        UIGraphicsBeginImageContext(sz)
+        if let maskedImageRef = rawImageRef.copy(maskingColorComponents: colorMasking) {
+          let context: CGContext = UIGraphicsGetCurrentContext()!
+          context.translateBy(x: 0.0, y: sz.height)
+          context.scaleBy(x: 1.0, y: -1.0)
+          context.draw(maskedImageRef, in: CGRect(x:0, y:0, width:sz.width,
+                                                  height:sz.height))
+          let result = UIGraphicsGetImageFromCurrentImageContext()
+          UIGraphicsEndImageContext()
+          return result
+        }
+      }
+      return nil
     }
-    return resImage
-  }
   
   @objc(convertImage:threshold:resolver:rejecter:)
   func convertImage(_ imageURL: String,
