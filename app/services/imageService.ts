@@ -3,8 +3,6 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 
-const COLOR_DISTANCE_THREHOLD: number = 32;
-
 console.log(NativeModules.Counter);
 
 const ImageConverter = NativeModules.ImageConverter;
@@ -22,7 +20,7 @@ const shutdown = () => {
 
 const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
-  ImageConverter.convertImage(imageURI, COLOR_DISTANCE_THREHOLD)
+  ImageConverter.convertImage(imageURI)
   .then((imageBase64: string) => { resolve(imageBase64) })
   .catch((e: any) => {
     reject(e)

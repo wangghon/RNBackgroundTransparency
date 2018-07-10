@@ -42,7 +42,7 @@ class ImageConverter: NSObject {
     task.resume()
   }
   
-  func transparencyImageBG(_ image: UIImage, threshold: Int) -> UIImage? {
+  func transparencyImageBG(_ image: UIImage) -> UIImage? {
     return transparencyImageBGByMask(image);
     }
   
@@ -66,16 +66,15 @@ class ImageConverter: NSObject {
     return nil
   }
   
-  @objc(convertImage:threshold:resolver:rejecter:)
+  @objc(convertImage:resolver:rejecter:)
   func convertImage(_ imageURL: String,
-                    threshold: NSInteger,
                     resolver resolve: @escaping RCTPromiseResolveBlock,
                     rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     
     getImageFromWeb(imageURL) { (image) in
        //change the background to transparency
        if let image = image {
-        let resImage: UIImage? = self.transparencyImageBG(image, threshold: threshold)
+        let resImage: UIImage? = self.transparencyImageBG(image)
         
         let imageData = UIImagePNGRepresentation(resImage!)!
         let imageStr = imageData.base64EncodedString()

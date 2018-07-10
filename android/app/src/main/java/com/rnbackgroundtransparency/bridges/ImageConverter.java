@@ -39,7 +39,7 @@ public class ImageConverter extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void convertImage(String imageURI, final Integer threshold, final Promise promise) {
+    public void convertImage(String imageURI, final Promise promise) {
 
          class ImageAsyncTask extends AsyncTask<String, String, String> {
             @Override
@@ -53,7 +53,7 @@ public class ImageConverter extends ReactContextBaseJavaModule {
 
                     //Decode bitmap
                     Bitmap bitmap = BitmapFactory.decodeStream(input);
-                    bitmap = TransparencyBitmapBG(bitmap, threshold);
+                    bitmap = TransparencyBitmapBG(bitmap);
 
                     //convert to base64 string
                     imageBase64 = BitMapToString(bitmap);
@@ -90,7 +90,7 @@ public class ImageConverter extends ReactContextBaseJavaModule {
                 return Base64.encodeToString(imageBytes, Base64.DEFAULT);
             }
 
-            private Bitmap TransparencyBitmapBG (Bitmap bitmap, Integer threshold) {
+            private Bitmap TransparencyBitmapBG (Bitmap bitmap) {
                 Bitmap decoded = bitmap.copy(Bitmap.Config.ARGB_8888 , true);
                 decoded.setHasAlpha(true);
 
