@@ -13,7 +13,8 @@ import {
 
 import imageService from './app/services/imageService';
 
-const imageURI: string = 'https://images.pexels.com/photos/768943/pexels-photo-768943.jpeg';
+//The multiple size images is here:https://zh.wikipedia.org/wiki/File:Allosaurus_AMNH_White_Background.jpg
+const imageURI: string = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Allosaurus_AMNH_White_Background.jpg/800px-Allosaurus_AMNH_White_Background.jpg';
 
 type Props = {};
 type States = {
