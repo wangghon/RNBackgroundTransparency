@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
 
 import imageService from './app/services/imageService';
@@ -20,6 +21,8 @@ type States = {
   height: number,
   imageBase64: string,
   converting: boolean,
+  loading: boolean,
+  loaded: boolean,
 }
 export default class App extends Component<Props, States> {
   converting: boolean = false;
@@ -29,6 +32,8 @@ export default class App extends Component<Props, States> {
     height:Dimensions.get('window').height * 0.4,
     imagebase64: '',
     converting: false,
+    loading: false,
+    loaded: false,
   }
 
   componentWillMount() {
@@ -61,16 +66,33 @@ export default class App extends Component<Props, States> {
     })
   };
 
+  _onImageLoadStart = () => {
+    this.setState({
+      loading: true,
+    })
+  };
+
+  _onImageLoadEnd = () => {
+    this.setState({
+      loading: false,
+      loaded: true,
+    })
+  };
+
   render() {
     return (
       <View style={styles.container}>
-        <Image
+        <ImageBackground
           source={{uri: imageURI}}
-          style={{width: this.state.width, height: this.state.height}}
-        />
+          style={{width: this.state.width, height: this.state.height, justifyContent: 'center'}}
+          onLoadStart={this._onImageLoadStart}
+          onLoadEnd= {this._onImageLoadEnd}>
+          {this.state.loading && <ActivityIndicator size="large" color={'#D9155D'} /> }
+        </ImageBackground>
         <TouchableOpacity
           style={styles.button}
           onPress={this._onPress}
+          disabled={!this.state.loaded}
        >
          <Text style={styles.text}> {this.state.converting ? 'Converting' : 'Convert'}</Text>
          {this.state.converting && <ActivityIndicator size="large" color={'#D9155D'} style={styles.indicator} /> }
@@ -105,5 +127,5 @@ const styles = StyleSheet.create({
   },
   indicator: {
     marginLeft: 5,
-  }
+  },
 });
