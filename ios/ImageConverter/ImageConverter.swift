@@ -43,24 +43,28 @@ class ImageConverter: NSObject {
   }
   
   func transparencyImageBG(_ image: UIImage, threshold: Int) -> UIImage? {
-      let colorMasking: [CGFloat] = [240, 255, 240, 255, 240, 255]
-      let sz = image.size
-    
-      if let rawImageRef = image.cgImage {
-        UIGraphicsBeginImageContext(sz)
-        if let maskedImageRef = rawImageRef.copy(maskingColorComponents: colorMasking) {
-          let context: CGContext = UIGraphicsGetCurrentContext()!
-          context.translateBy(x: 0.0, y: sz.height)
-          context.scaleBy(x: 1.0, y: -1.0)
-          context.draw(maskedImageRef, in: CGRect(x:0, y:0, width:sz.width,
-                                                  height:sz.height))
-          let result = UIGraphicsGetImageFromCurrentImageContext()
-          UIGraphicsEndImageContext()
-          return result
-        }
-      }
-      return nil
+    return transparencyImageBGByMask(image);
     }
+  
+  func transparencyImageBGByMask(_ image: UIImage) -> UIImage? {
+    let colorMasking: [CGFloat] = [240, 255, 240, 255, 240, 255]
+    let sz = image.size
+    
+    if let rawImageRef = image.cgImage {
+      UIGraphicsBeginImageContext(sz)
+      if let maskedImageRef = rawImageRef.copy(maskingColorComponents: colorMasking) {
+        let context: CGContext = UIGraphicsGetCurrentContext()!
+        context.translateBy(x: 0.0, y: sz.height)
+        context.scaleBy(x: 1.0, y: -1.0)
+        context.draw(maskedImageRef, in: CGRect(x:0, y:0, width:sz.width,
+                                                height:sz.height))
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return result
+      }
+    }
+    return nil
+  }
   
   @objc(convertImage:threshold:resolver:rejecter:)
   func convertImage(_ imageURL: String,

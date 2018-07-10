@@ -22,7 +22,7 @@ const shutdown = () => {
 
 const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
-  ImageConverter.convertImage(imageURI)
+  ImageConverter.convertImage(imageURI, COLOR_DISTANCE_THREHOLD)
   .then((imageBase64: string) => { resolve(imageBase64) })
   .catch((e: any) => {
     reject(e)
