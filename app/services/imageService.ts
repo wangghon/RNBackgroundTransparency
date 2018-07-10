@@ -8,16 +8,21 @@ const COLOR_DISTANCE_THREHOLD: number = 32;
 console.log(NativeModules.Counter);
 
 const ImageConverter = NativeModules.ImageConverter;
+let subscription: any;
 
 const init = (eventCallback: any) => {
-  DeviceEventEmitter.addListener('onImageConvert', (e: any): void => {
+  subscription = DeviceEventEmitter.addListener('onImageConvert', (e: any): void => {
     if (eventCallback) eventCallback(e.image);
   });
 }
 
+const shutdown = () => {
+  if (subscription) subscription.remove();
+}
+
 const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
-  ImageConverter.convertImage(imageURI, COLOR_DISTANCE_THREHOLD)
+  ImageConverter.convertImage(imageURI)
   .then((imageBase64: string) => { resolve(imageBase64) })
   .catch((e: any) => {
     reject(e)
@@ -26,5 +31,6 @@ const convertImage = (imageURI: string): Promise<string> => new Promise((resolve
 
 export default { 
   init, 
+  shutdown,
   convertImage 
 };

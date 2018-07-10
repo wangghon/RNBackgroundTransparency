@@ -46,21 +46,28 @@ export default class App extends Component<Props, States> {
     }, () => {});
 
     imageService.init((imageBase64: string) => {
-      this.setState({
-        imageBase64,
-      });
+      this.setState({ imageBase64 });
     })
+  }
+
+  componentWillUnmount() {
+    imageService.shutdown();
   }
 
   _onPress = () => {
     if (this.converting) return;
     this.converting = true;
-    this.setState({ converting: true });
+    this.setState({ 
+      converting: true,
+      imageBase64: '',
+     });
+
     imageService.convertImage(imageURI).then((imageBase64: string) => {
       this.setState({
         imageBase64,
         converting: false,
       });
+      this.converting = false;
     }).catch((e: any) => {
       console.log('The error of image converter is ', e);
     })
