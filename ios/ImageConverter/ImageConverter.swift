@@ -42,17 +42,12 @@ class ImageConverter: NSObject {
     task.resume()
   }
   
-  func transparencyImageBG(_ image: UIImage) -> UIImage? {
-    return transparencyImageBGByMask(image);
-    }
-  
-  func transparencyImageBGByMask(_ image: UIImage) -> UIImage? {
-    let colorMasking: [CGFloat] = [240, 255, 240, 255, 240, 255]
+  func transparencyImageBGByMask(_ image: UIImage, colorMask: [CGFloat]) -> UIImage? {
     let sz = image.size
     
     if let rawImageRef = image.cgImage {
       UIGraphicsBeginImageContext(sz)
-      if let maskedImageRef = rawImageRef.copy(maskingColorComponents: colorMasking) {
+      if let maskedImageRef = rawImageRef.copy(maskingColorComponents: colorMask) {
         let context: CGContext = UIGraphicsGetCurrentContext()!
         context.translateBy(x: 0.0, y: sz.height)
         context.scaleBy(x: 1.0, y: -1.0)
@@ -66,15 +61,16 @@ class ImageConverter: NSObject {
     return nil
   }
   
-  @objc(convertImage:resolver:rejecter:)
+  @objc(convertImage:colorMask:resolver:rejecter:)
   func convertImage(_ imageURL: String,
+                    colorMask colorMasking: [CGFloat],
                     resolver resolve: @escaping RCTPromiseResolveBlock,
                     rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     
     getImageFromWeb(imageURL) { (image) in
        //change the background to transparency
        if let image = image {
-        let resImage: UIImage? = self.transparencyImageBG(image)
+        let resImage: UIImage? = self.transparencyImageBGByMask(image, colorMask: colorMasking)
         
         let imageData = UIImagePNGRepresentation(resImage!)!
         let imageStr = imageData.base64EncodedString()

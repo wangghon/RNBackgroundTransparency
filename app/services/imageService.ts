@@ -3,9 +3,10 @@ import {
   DeviceEventEmitter,
 } from 'react-native';
 
-console.log(NativeModules.Counter);
-
 const ImageConverter = NativeModules.ImageConverter;
+
+const WHITE_COLOR_MASKING: Array<number> = [240.0, 255.0, 240.0, 255.0, 240.0, 255.0];
+
 let subscription: any;
 
 const init = (eventCallback: any) => {
@@ -20,7 +21,7 @@ const shutdown = () => {
 
 const convertImage = (imageURI: string): Promise<string> => new Promise((resolve: any, reject: any) => {
 
-  ImageConverter.convertImage(imageURI)
+  ImageConverter.convertImage(imageURI, WHITE_COLOR_MASKING)
   .then((imageBase64: string) => { resolve(imageBase64) })
   .catch((e: any) => {
     reject(e)

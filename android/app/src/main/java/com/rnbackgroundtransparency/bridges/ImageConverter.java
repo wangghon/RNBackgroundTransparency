@@ -11,6 +11,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
@@ -39,7 +40,7 @@ public class ImageConverter extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void convertImage(String imageURI, final Promise promise) {
+    public void convertImage(String imageURI, final ReadableArray colorMask, final Promise promise) {
 
          class ImageAsyncTask extends AsyncTask<String, String, String> {
             @Override
@@ -53,7 +54,8 @@ public class ImageConverter extends ReactContextBaseJavaModule {
 
                     //Decode bitmap
                     Bitmap bitmap = BitmapFactory.decodeStream(input);
-                    bitmap = TransparencyBitmapBG(bitmap);
+                    double[] colorMasking = ResolveReadableArray(colorMask);
+                    bitmap = TransparencyBitmapBGByMask(bitmap, colorMasking);
 
                     //convert to base64 string
                     imageBase64 = BitMapToString(bitmap);
@@ -90,43 +92,39 @@ public class ImageConverter extends ReactContextBaseJavaModule {
                 return Base64.encodeToString(imageBytes, Base64.DEFAULT);
             }
 
-            private Bitmap TransparencyBitmapBG (Bitmap bitmap) {
+            private Bitmap TransparencyBitmapBGByMask (Bitmap bitmap, double[] colorMask) {
                 Bitmap decoded = bitmap.copy(Bitmap.Config.ARGB_8888 , true);
                 decoded.setHasAlpha(true);
-
-                int white = 0xffffffff;
 
                 for(int x = 0; x < decoded.getWidth(); x++) {
 
                     for(int y = 0; y < decoded.getHeight(); y++) {
 
-                        //if(ColorDistance(decoded.getPixel(x, y), white) < threshold) {
-                        if (ShouldBeTransparent(decoded.getPixel(x, y))) {
+                        if (ShouldBeTransparent(decoded.getPixel(x, y), colorMask)) {
                             decoded.setPixel(x, y,Color.TRANSPARENT);
                         }
                     }
-
-//                    if ( x % 100 == 0 ) {
-//
-//                        String temp = BitMapToString(decoded);
-//                        publishProgress(temp);
-//                    }
                 }
                 return decoded;
             }
 
-            private double ColorDistance(int c1, int c2) {
-                return Math.sqrt(Math.pow(Color.red(c1) - Color.red(c2), 2) + Math.pow(Color.green(c1) - Color.green(c2), 2) + Math.pow(Color.blue(c1) - Color.blue(c2), 2)); // + Math.pow(c1.alpha - c2.alpha, 2));
+            private boolean ShouldBeTransparent(int c1, double[] colorMask) {
+                return Color.red(c1) > colorMask[0]
+                        && Color.red(c1) <= colorMask[1]
+                        && Color.green(c1) > colorMask[2]
+                        && Color.green(c1) <= colorMask[3]
+                        && Color.blue(c1) > colorMask[4]
+                        && Color.blue(c1) <= colorMask[5];
             }
 
-            private boolean ShouldBeTransparent(int c1) {
-                int[] color = {240, 255};
-                return Color.red(c1) > color[0]
-                        && Color.red(c1) <= color[1]
-                        && Color.green(c1) > color[0]
-                        && Color.green(c1) <= color[1]
-                        && Color.blue(c1) > color[0]
-                        && Color.blue(c1) <= color[1];
+            private double[] ResolveReadableArray(ReadableArray jsArray) {
+                assert(jsArray.size() == 6); //[minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue]
+
+                double[] colorMask = new double[6];
+                for(int i = 0; i < jsArray.size(); i++) {
+                    colorMask[i] = jsArray.getDouble(i);
+                }
+                return colorMask;
             }
 
 
