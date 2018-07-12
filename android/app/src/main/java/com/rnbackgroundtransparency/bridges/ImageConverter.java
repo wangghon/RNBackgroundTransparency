@@ -58,14 +58,20 @@ public class ImageConverter extends ReactContextBaseJavaModule {
         Bitmap decoded = bitmap.copy(Bitmap.Config.ARGB_8888 , true);
         decoded.setHasAlpha(true);
 
-        for(int x = 0; x < decoded.getWidth(); x++) {
+        int width = decoded.getWidth();
+        int height = decoded.getHeight();
 
-            for(int y = 0; y < decoded.getHeight(); y++) {
+        int[] pixels = new int[width];
+        for (int y = 0; y < height; y++) {
+            decoded.getPixels(pixels, 0, width, 0, y, width, 1);
 
-                if (ShouldBeTransparent(decoded.getPixel(x, y), colorMask)) {
-                    decoded.setPixel(x, y,Color.TRANSPARENT);
+            for (int x = 0; x < width; x++) {
+                // Replace the alpha channel with the r value from the bitmap.
+                if (ShouldBeTransparent(pixels[x], colorMask)) {
+                    pixels[x] = (pixels[x] & 0x00FFFFFF);
                 }
             }
+            decoded.setPixels(pixels, 0, width, 0, y, width, 1);
         }
         return decoded;
     }
