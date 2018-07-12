@@ -42,7 +42,6 @@ public class ImageConverter extends ReactContextBaseJavaModule {
         ByteArrayOutputStream finalOut = new ByteArrayOutputStream();
 
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, finalOut);
-            //convert to base64 string
         byte[] imageBytes = finalOut.toByteArray();
 
         return Base64.encodeToString(imageBytes, Base64.DEFAULT);
@@ -61,18 +60,15 @@ public class ImageConverter extends ReactContextBaseJavaModule {
         int width = decoded.getWidth();
         int height = decoded.getHeight();
 
-        int[] pixels = new int[width];
-        for (int y = 0; y < height; y++) {
-            decoded.getPixels(pixels, 0, width, 0, y, width, 1);
-
-            for (int x = 0; x < width; x++) {
-                // Replace the alpha channel with the r value from the bitmap.
-                if (ShouldBeTransparent(pixels[x], colorMask)) {
-                    pixels[x] = (pixels[x] & 0x00FFFFFF);
-                }
+        int total = width * height;
+        int[] pixels = new int[total];
+        decoded.getPixels(pixels, 0, width, 0, 0, width, height);
+        for (int x = 0; x < total; x++) {
+            if (ShouldBeTransparent(pixels[x], colorMask)) {
+                pixels[x] = (pixels[x] & 0x00FFFFFF);
             }
-            decoded.setPixels(pixels, 0, width, 0, y, width, 1);
         }
+        decoded.setPixels(pixels, 0, width, 0, 0, width, height);
         return decoded;
     }
 
