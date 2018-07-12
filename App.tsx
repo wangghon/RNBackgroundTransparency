@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   ImageBackground,
 } from 'react-native';
+import RNFetchBlob from 'rn-fetch-blob'
+
 
 import imageService from './app/services/imageService';
 
@@ -19,10 +21,10 @@ type Props = {};
 type States = {
   width: number,
   height: number,
-  imageBase64: string,
-  converting: boolean,
-  loading: boolean,
-  loaded: boolean,
+  originalImageStr: string,
+  maskedImageStr: string,
+  masking: boolean,
+  fetching: boolean,
 }
 export default class App extends Component<Props, States> {
   converting: boolean = false;
@@ -30,14 +32,13 @@ export default class App extends Component<Props, States> {
   state: any = {
     width: Dimensions.get('window').width,
     height:Dimensions.get('window').height * 0.4,
-    imagebase64: '',
-    converting: false,
-    loading: false,
-    loaded: false,
+    originalImageStr: '',
+    maskedImageStr: '',
+    masking: false,
+    fetching: true,
   }
 
   componentWillMount() {
-    Image.prefetch(imageURI);
     Image.getSize(imageURI, (width: number, height: number) => {
       this.setState({
         height: height > this.state.height ? this.state.height : height,
@@ -45,8 +46,21 @@ export default class App extends Component<Props, States> {
       });
     }, () => {});
 
-    imageService.init((imageBase64: string) => {
-      this.setState({ imageBase64 });
+    RNFetchBlob.fetch('GET', imageURI, {})
+      .then((res: any) => {
+      let status = res.info().status;
+    
+      if(status == 200) {
+        // the conversion is done in native code
+        this.setState({ 
+          originalImageStr: res.base64(),
+          fetching: false
+        });
+      } 
+    });
+
+    imageService.init((maskedImageStr: string) => {
+      this.setState({ maskedImageStr });
     })
   }
 
@@ -58,14 +72,14 @@ export default class App extends Component<Props, States> {
     if (this.converting) return;
     this.converting = true;
     this.setState({ 
-      converting: true,
-      imageBase64: '',
+      maskedImageStr: '',
+      masking: true,
      });
 
-    imageService.convertImage(imageURI).then((imageBase64: string) => {
+    imageService.maskImage(this.state.originalImageStr).then((maskedImageStr: string) => {
       this.setState({
-        imageBase64,
-        converting: false,
+        maskedImageStr,
+        masking: false,
       });
       this.converting = false;
     }).catch((e: any) => {
@@ -73,39 +87,24 @@ export default class App extends Component<Props, States> {
     })
   };
 
-  _onImageLoadStart = () => {
-    this.setState({
-      loading: true,
-    })
-  };
-
-  _onImageLoadEnd = () => {
-    this.setState({
-      loading: false,
-      loaded: true,
-    })
-  };
-
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={{uri: imageURI}}
-          style={{width: this.state.width, height: this.state.height, justifyContent: 'center'}}
-          onLoadStart={this._onImageLoadStart}
-          onLoadEnd= {this._onImageLoadEnd}>
-          {this.state.loading && <ActivityIndicator size="large" color={'#D9155D'} /> }
+          source={{uri: `data:image/jpg;base64, ${this.state.originalImageStr}`}}
+          style={{width: this.state.width, height: this.state.height, justifyContent: 'center'}}>
+          {this.state.fetching && <ActivityIndicator size="large" color={'#D9155D'} /> }
         </ImageBackground>
         <TouchableOpacity
           style={styles.button}
           onPress={this._onPress}
-          disabled={!this.state.loaded}
+          disabled={this.state.fetching}
        >
-         <Text style={styles.text}> {this.state.converting ? 'Converting' : 'Convert'}</Text>
-         {this.state.converting && <ActivityIndicator size="large" color={'#D9155D'} style={styles.indicator} /> }
+         <Text style={styles.text}> {this.state.masking ? 'Converting' : 'Convert'}</Text>
+         {this.state.masking && <ActivityIndicator size="large" color={'#D9155D'} style={styles.indicator} /> }
        </TouchableOpacity>
       <Image
-        source={{uri: `data:image/png;base64, ${this.state.imageBase64}`}}
+        source={{uri: `data:image/png;base64, ${this.state.maskedImageStr}`}}
         style={{width: this.state.width, height: this.state.height}}
       />
       </View>

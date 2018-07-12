@@ -28,8 +28,18 @@ const convertImage = (imageURI: string): Promise<string> => new Promise((resolve
   });
 });
 
+const maskImage = (imageStr: string): Promise<string> => new Promise((resolve: any, reject: any) => {
+
+  ImageConverter.maskImage(imageStr, WHITE_COLOR_MASKING)
+  .then((imageBase64: string) => { resolve(imageBase64) })
+  .catch((e: any) => {
+    reject(e)
+  });
+});
+
 export default { 
   init, 
   shutdown,
-  convertImage 
+  convertImage,
+  maskImage, 
 };
