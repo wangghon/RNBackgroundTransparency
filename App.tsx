@@ -75,12 +75,14 @@ export default class App extends Component<Props, States> {
       masking: true,
      });
 
+    console.log(new Date().toISOString(), 'start masking');
     imageService.maskImage(this.state.originalImageStr).then((maskedImageStr: string) => {
       this.setState({
         maskedImageStr,
         masking: false,
       });
       this.converting = false;
+      console.log(new Date().toISOString(), 'complete masking');
     }).catch((e: any) => {
       console.log('The error of image converter is ', e);
     })
