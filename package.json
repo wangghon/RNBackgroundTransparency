@@ -9,6 +9,7 @@
     "dev:refresh": "rm -Rf node_modules/ && yarn && yarn build:clean",
     "dev:reset": "rm -Rf $TMPDIR/react-* && watchman watch-del-all && yarn dev:refresh && yarn start --reset-cache",
     "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "xc": "open ./ios/*.xcworkspace"
   },
   "dependencies": {

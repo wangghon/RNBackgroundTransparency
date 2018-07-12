@@ -61,6 +61,37 @@ class ImageConverter: NSObject {
     return nil
   }
   
+  func base64ToImage(base64String: String?) -> UIImage? {
+      if (base64String?.isEmpty)! {
+          return #imageLiteral(resourceName: "no_image_found")
+      }else {
+          let dataDecoded : Data = Data(base64Encoded: base64String!, options: .ignoreUnknownCharacters)!
+          let decodedimage = UIImage(data: dataDecoded)
+          return decodedimage
+      }
+  }
+  
+  @objc(maskImage:colorMask:resolver:rejecter:)
+  func maskImage(_ imageStr: String,
+                    colorMask colorMasking: [CGFloat],
+                    resolver resolve: @escaping RCTPromiseResolveBlock,
+                    rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    
+      let image = base64ToImage(base64String: imageStr)
+      if let image = image {
+        let resImage: UIImage? = self.transparencyImageBGByMask(image, colorMask: colorMasking)
+        
+        let imageData = UIImagePNGRepresentation(resImage!)!
+        let imageStr = imageData.base64EncodedString()
+        
+        resolve(imageStr)
+        
+      } else {
+        let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "image convert fail"])
+        reject("", "", error)
+      }
+  }
+  
   @objc(convertImage:colorMask:resolver:rejecter:)
   func convertImage(_ imageURL: String,
                     colorMask colorMasking: [CGFloat],

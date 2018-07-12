@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob'
 
-
 import imageService from './app/services/imageService';
 
 //The multiple size images is here:https://zh.wikipedia.org/wiki/File:Allosaurus_AMNH_White_Background.jpg

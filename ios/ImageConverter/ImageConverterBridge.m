@@ -12,4 +12,5 @@
 
 @interface RCT_EXTERN_MODULE(ImageConverter, NSObject)
 RCT_EXTERN_METHOD(convertImage: (NSString *)imageURL colorMask: (NSArray *)colorMask resolver: (RCTPromiseResolveBlock *)resolve rejecter: (RCTPromiseRejectBlock *)reject)
+RCT_EXTERN_METHOD(maskImage: (NSString *)imageStr colorMask: (NSArray *)colorMask resolver: (RCTPromiseResolveBlock *)resolve rejecter: (RCTPromiseRejectBlock *)reject)
 @end
