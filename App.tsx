@@ -93,7 +93,8 @@ export default class App extends Component<Props, States> {
       <View style={styles.container}>
         <ImageBackground
           source={{uri: `data:image/jpg;base64, ${this.state.originalImageStr}`}}
-          style={{width: this.state.width, height: this.state.height, justifyContent: 'center'}}>
+          style={{width: this.state.width, height: this.state.height, justifyContent: 'center', marginTop: 10}}
+          resizeMode={'contain'}>
           {this.state.fetching && <ActivityIndicator size="large" color={'#D9155D'} /> }
         </ImageBackground>
         <TouchableOpacity
@@ -107,6 +108,7 @@ export default class App extends Component<Props, States> {
       <Image
         source={{uri: `data:image/png;base64, ${this.state.maskedImageStr}`}}
         style={{width: this.state.width, height: this.state.height}}
+        resizeMode={'contain'}
       />
       </View>
     );
